@@ -23,7 +23,7 @@ export function PartnerSheet({ onClose }: { onClose: () => void }) {
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => null);
+        const errData = (await res.json().catch(() => null)) as Record<string, string> | null;
         throw new Error(errData?.error || "Failed to submit application");
       }
 

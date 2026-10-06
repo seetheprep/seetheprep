@@ -2,6 +2,7 @@ import { menuFor, menuOptions } from "@/data/menus";
 import { site } from "@/data/site";
 import { isRecord, json, readBody, validEmail } from "@/lib/api";
 import { findKitchen, money } from "@/lib/content";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 export const runtime = "edge";
 export async function POST(request: Request) {
   let data: unknown;
@@ -45,7 +46,14 @@ export async function POST(request: Request) {
       (item.extra === true ? menuOptions.extra : 0);
     lines.push(`${item.quantity} × ${dish.name} — ${money(price * item.quantity)}`);
   }
-  const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+  let env: Record<string, string> = process.env as unknown as Record<string, string>;
+  try {
+    env = getRequestContext().env as Record<string, string>;
+  } catch {
+    // getRequestContext() throws in local dev if not using wrangler
+  }
+
+  const base = env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
   const text = [
     `Hi ${data.name.trim()},`,
     `Order #${data.id} from ${kitchen.name}.`,
@@ -54,13 +62,14 @@ export async function POST(request: Request) {
     ...(kitchen.camera ? [`Watch your kitchen live: ${base}/live/#${kitchen.id}`] : []),
     `Questions? ${site.email}`,
   ].join("\n\n");
-  const key = process.env.EMAIL_API_KEY,
-    from = process.env.EMAIL_FROM;
-  if (!key || !from || !process.env.EMAIL_PROVIDER) {
+  const key = env.EMAIL_API_KEY || process.env.EMAIL_API_KEY,
+    from = env.EMAIL_FROM || process.env.EMAIL_FROM,
+    provider = (env.EMAIL_PROVIDER || process.env.EMAIL_PROVIDER)?.toLowerCase();
+  if (!key || !from || !provider) {
     console.warn("SeeThePrep: order email is not configured; no email was sent.");
     return json({ sent: false, configured: false, text });
   }
-  if (process.env.EMAIL_PROVIDER.toLowerCase() !== "resend")
+  if (provider !== "resend")
     return json({ sent: false, text, error: "Email delivery is unavailable." }, 503);
   try {
     const response = await fetch("https://api.resend.com/emails", {

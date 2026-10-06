@@ -212,7 +212,7 @@ export function flyToCart(src: string | undefined, rect: DOMRect | undefined) {
   image.className = "basket-flight";
   image.style.left = `${rect.left}px`;
   image.style.top = `${rect.top}px`;
-  document.body.append(image);
+  document.body.appendChild(image);
   const dx = cart.left + cart.width / 2 - rect.left - 24,
     dy = cart.top - rect.top;
   image

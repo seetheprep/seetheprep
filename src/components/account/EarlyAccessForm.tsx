@@ -44,9 +44,9 @@ export function EarlyAccessForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), email: email.trim(), consent: true }),
       });
-      const result = await response.json();
+      const result = (await response.json()) as Record<string, unknown>;
       if (!response.ok)
-        throw new Error(result.error || "We couldn't save your details. Please try again.");
+        throw new Error((result.error as string) || "We couldn't save your details. Please try again.");
       setSaved(result.saved === true);
       setDone(true);
     } catch (err) {

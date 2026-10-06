@@ -1,5 +1,6 @@
 import { accountCopy } from "@/data/site";
 import { isRecord, json, readBody, validEmail } from "@/lib/api";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = "edge";
 
@@ -27,9 +28,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const key = process.env.EMAIL_API_KEY;
-  const from = process.env.EMAIL_FROM || "noreply@seetheprep.com";
-  const provider = process.env.EMAIL_PROVIDER?.toLowerCase();
+  let env: Record<string, string> = process.env as unknown as Record<string, string>;
+  try {
+    env = getRequestContext().env as Record<string, string>;
+  } catch {
+    // getRequestContext() throws in local dev if not using wrangler
+  }
+  
+  const key = env.EMAIL_API_KEY || process.env.EMAIL_API_KEY;
+  const from = env.EMAIL_FROM || process.env.EMAIL_FROM || "noreply@seetheprep.com";
+  const provider = (env.EMAIL_PROVIDER || process.env.EMAIL_PROVIDER)?.toLowerCase();
 
   if (!key || !provider) {
     console.warn("SeeThePrep: email API is not configured; no subscription was saved.");

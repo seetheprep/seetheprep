@@ -1,4 +1,5 @@
 import { json, readBody, isRecord } from "@/lib/api";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = "edge";
 
@@ -36,15 +37,23 @@ Owner Info
 - Email: ${data.email}
 `;
 
-  const key = process.env.EMAIL_API_KEY,
-    from = process.env.EMAIL_FROM || "noreply@seetheprep.com";
+  let env: Record<string, string> = process.env as unknown as Record<string, string>;
+  try {
+    env = getRequestContext().env as Record<string, string>;
+  } catch {
+    // getRequestContext() throws in local dev if not using wrangler
+  }
 
-  if (!key || !process.env.EMAIL_PROVIDER) {
+  const key = env.EMAIL_API_KEY || process.env.EMAIL_API_KEY,
+    from = env.EMAIL_FROM || process.env.EMAIL_FROM || "noreply@seetheprep.com",
+    provider = (env.EMAIL_PROVIDER || process.env.EMAIL_PROVIDER)?.toLowerCase();
+
+  if (!key || !provider) {
     console.warn("SeeThePrep: partner email is not configured; no email was sent.");
     return json({ sent: false, configured: false, text });
   }
 
-  if (process.env.EMAIL_PROVIDER.toLowerCase() !== "resend") {
+  if (provider !== "resend") {
     return json({ sent: false, text, error: "Email delivery is unavailable." }, 503);
   }
 
