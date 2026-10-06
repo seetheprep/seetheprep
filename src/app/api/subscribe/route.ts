@@ -1,5 +1,6 @@
 import { accountCopy } from "@/data/site";
 import { isRecord, json, readBody, validEmail } from "@/lib/api";
+import { getEarlyAccessEmailHtml } from "@/lib/email-templates";
 import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = "edge";
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
         from,
         to: [email],
         subject: "Welcome to SeeThePrep Early Access!",
-        text: `Hi ${firstName},\n\nThank you for registering for early access to SeeThePrep!\n\nWe'll be sure to send you launch news, new live kitchens and early offers.\n\nBest,\nThe SeeThePrep Team`,
+        html: getEarlyAccessEmailHtml(firstName),
       }),
       signal: AbortSignal.timeout(10000),
     });

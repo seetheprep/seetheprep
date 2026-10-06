@@ -119,6 +119,9 @@ export function EarlyAccessForm() {
                 autoComplete="given-name"
                 required
                 maxLength={80}
+                style={{ transition: "all 0.2s ease", border: "2px solid transparent", boxShadow: "0 2px 4px rgba(0,0,0,0.02) inset" }}
+                onFocus={(e) => { e.target.style.borderColor = "var(--primary)"; e.target.style.backgroundColor = "var(--white)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "transparent"; e.target.style.backgroundColor = "var(--soft)"; }}
               />
             </label>
             <label className="app-field">
@@ -133,6 +136,9 @@ export function EarlyAccessForm() {
                 autoComplete="email"
                 required
                 maxLength={254}
+                style={{ transition: "all 0.2s ease", border: "2px solid transparent", boxShadow: "0 2px 4px rgba(0,0,0,0.02) inset" }}
+                onFocus={(e) => { e.target.style.borderColor = "var(--primary)"; e.target.style.backgroundColor = "var(--white)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "transparent"; e.target.style.backgroundColor = "var(--soft)"; }}
               />
             </label>
             <label className="consent-checkbox">
@@ -158,8 +164,9 @@ export function EarlyAccessForm() {
               aria-disabled={!consent || busy}
               disabled={busy}
               type="submit"
+              style={{ transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)", transform: busy ? "scale(0.98)" : "scale(1)", boxShadow: consent ? "0 4px 14px rgba(0,0,0,0.15)" : "none" }}
             >
-              {busy && <LoaderCircle className="saving-spinner" size={18} />}{" "}
+              {busy && <LoaderCircle className="saving-spinner" size={18} style={{ animation: "spin 1s linear infinite" }} />}{" "}
               {busy ? "Saving…" : "Get early access"}
             </button>
           </form>

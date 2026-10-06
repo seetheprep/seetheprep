@@ -1,4 +1,5 @@
 import { json, readBody, isRecord } from "@/lib/api";
+import { getPartnerApplicationHtml } from "@/lib/email-templates";
 import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = "edge";
@@ -24,18 +25,15 @@ export async function POST(request: Request) {
     return json({ sent: false, error: "Missing required fields." }, 400);
   }
 
-  const text = `New Partner Application
-
-Business Info
-- Name: ${data.businessName}
-- Address: ${data.businessAddress}
-- Type: ${data.businessType}
-
-Owner Info
-- Name: ${data.firstName} ${data.lastName}
-- Phone: ${data.phone}
-- Email: ${data.email}
-`;
+  const html = getPartnerApplicationHtml({
+    businessName: data.businessName,
+    businessAddress: data.businessAddress,
+    businessType: data.businessType,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+  });
 
   let env: Record<string, string> = process.env as unknown as Record<string, string>;
   try {
@@ -50,11 +48,11 @@ Owner Info
 
   if (!key || !provider) {
     console.warn("SeeThePrep: partner email is not configured; no email was sent.");
-    return json({ sent: false, configured: false, text });
+    return json({ sent: false, configured: false });
   }
 
   if (provider !== "resend") {
-    return json({ sent: false, text, error: "Email delivery is unavailable." }, 503);
+    return json({ sent: false, error: "Email delivery is unavailable." }, 503);
   }
 
   try {
@@ -68,18 +66,18 @@ Owner Info
         from,
         to: ["support@seetheprep.com"],
         subject: `New Partner Application from ${data.businessName}`,
-        text,
+        html,
       }),
       signal: AbortSignal.timeout(10000),
     });
 
     if (!response.ok) {
       console.warn("SeeThePrep: email provider rejected the request", response.status);
-      return json({ sent: false, text }, 502);
+      return json({ sent: false }, 502);
     }
     return json({ sent: true });
   } catch {
     console.warn("SeeThePrep: email provider could not be reached.");
-    return json({ sent: false, text }, 502);
+    return json({ sent: false }, 502);
   }
 }
