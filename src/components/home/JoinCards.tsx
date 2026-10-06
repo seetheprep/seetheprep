@@ -5,10 +5,13 @@ import { siteData } from "@/data/site";
 import { useInView } from "@/lib/hooks/useInView";
 import { ArrowUpRight, Bike, BriefcaseBusiness, CookingPot, Gavel, Heart } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { PartnerSheet } from "./PartnerSheet";
 
 const icons = [CookingPot, Gavel, BriefcaseBusiness, Heart, Bike];
 export function JoinCards() {
   const { ref, visible } = useInView<HTMLElement>(0.18, true);
+  const [partnerOpen, setPartnerOpen] = useState(false);
   return (
     <section className="join" id="join" aria-label="Be part of it" ref={ref}>
       <div className={`rise rv${visible ? " in" : ""}`}>
@@ -42,7 +45,12 @@ export function JoinCards() {
           const className = `jc rv${visible ? " in" : ""}`;
           const style = { "--i": i } as React.CSSProperties;
           return item.href === "#" ? (
-            <div key={item.t} className={className} style={style}>
+            <div
+              key={item.t}
+              className={className}
+              style={style}
+              onClick={item.t === "Partner with us" ? () => setPartnerOpen(true) : undefined}
+            >
               {content}
             </div>
           ) : (
@@ -52,6 +60,7 @@ export function JoinCards() {
           );
         })}
       </div>
+      {partnerOpen && <PartnerSheet onClose={() => setPartnerOpen(false)} />}
     </section>
   );
 }

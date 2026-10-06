@@ -2,8 +2,7 @@ import { menuFor, menuOptions } from "@/data/menus";
 import { site } from "@/data/site";
 import { isRecord, json, readBody, validEmail } from "@/lib/api";
 import { findKitchen, money } from "@/lib/content";
-import { createHash } from "node:crypto";
-export const runtime = "nodejs";
+export const runtime = "edge";
 export async function POST(request: Request) {
   let data: unknown;
   try {
@@ -69,7 +68,9 @@ export async function POST(request: Request) {
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
-        "Idempotency-Key": createHash("sha256").update(`${data.id}:${data.email}`).digest("hex"),
+        "Idempotency-Key": Array.from(
+          new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`${data.id}:${data.email}`)))
+        ).map(b => b.toString(16).padStart(2, "0")).join(""),
       },
       body: JSON.stringify({
         from,

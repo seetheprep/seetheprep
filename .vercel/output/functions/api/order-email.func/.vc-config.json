@@ -1,0 +1,18 @@
+{
+  "runtime": "edge",
+  "name": "api/order-email",
+  "deploymentTarget": "v8-worker",
+  "entrypoint": "index.js",
+  "assets": [],
+  "framework": {
+    "slug": "nextjs",
+    "version": "15.5.27"
+  },
+  "environment": {
+    "__NEXT_BUILD_ID": "vVLYk83WsolooOUAUaLuH",
+    "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "7h2g0ouM7eySwW3X2bdwmO62fcALSMoLkP2Lvf1l6Wg=",
+    "__NEXT_PREVIEW_MODE_ID": "119ce9eb7a316f01fedb90491037dcd3",
+    "__NEXT_PREVIEW_MODE_SIGNING_KEY": "1226f84d1b9f54ffe0cb2e61bf3736f1ec63b7a874d7f482296d4c86df76241d",
+    "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "9498b241d019c54d34787b58f750e267c6ae3085a42fa84c0fa90fbe263ec933"
+  }
+}
