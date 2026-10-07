@@ -48,8 +48,16 @@ export function JoinCards() {
             <div
               key={item.t}
               className={className}
-              style={style}
+              style={{ ...style, cursor: item.t === "Partner with us" ? "pointer" : "default" }}
+              role={item.t === "Partner with us" ? "button" : undefined}
+              tabIndex={item.t === "Partner with us" ? 0 : undefined}
               onClick={item.t === "Partner with us" ? () => setPartnerOpen(true) : undefined}
+              onKeyDown={(e) => {
+                if (item.t === "Partner with us" && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  setPartnerOpen(true);
+                }
+              }}
             >
               {content}
             </div>
